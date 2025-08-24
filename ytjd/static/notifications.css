@@ -1,0 +1,127 @@
+/* === Round icon buttons (profile + notifications) === */
+.nav-icon-host {
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: #505050;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  position: relative;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+}
+.nav-icon-host:hover { background: #5b5b5b; }
+
+.nav-icon-host .nav-icon { font-size: 14px; line-height: 0; }
+
+/* red badge on the bell */
+.nav-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: #e11;
+  color: #fff;
+  font-size: 10px;
+  display: none;            /* hidden when 0 */
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(15,15,15,0.95);
+}
+
+/* dropdown that opens under the icon */
+.nav-dd {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 280px;
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(20,20,20,0.95);
+  color: #fff;
+  display: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  z-index: 1000;
+}
+.nav-dd.show { display: block; }
+
+.nav-dd .mark-all {
+  text-align: right;
+  font-size: 12px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  opacity: .8;
+}
+.nav-dd .mark-all:hover { opacity: 1; text-decoration: underline; }
+
+/* notification list + items */
+.notif-list { display: flex; flex-direction: column; gap: 6px; }
+
+.notif-item {
+  position: relative;
+  padding: 8px 34px 8px 8px;          /* room for the trash button on right */
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+}
+.notif-item.unread { background: rgba(255,255,255,0.08); }
+.notif-item:hover { background: rgba(255,255,255,0.12); }
+
+/* tiny timestamp line */
+.notif-item time {
+  display: block;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
+/* red trashcan (revealed on hover) */
+.notif-del {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%) translateX(4px);
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  border: none;
+  background: #c01616;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .15s ease, transform .15s ease, background .15s ease;
+}
+.notif-item:hover .notif-del {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
+}
+.notif-del:hover { background: #a31212; }
+.notif-del i { font-size: 12px; }
+
+/* profile dropdown */
+.profile-dd {
+  min-width: 220px;
+  padding: 10px;
+}
+.profile-dd .who { font-size: 12px; opacity: .8; margin-bottom: 8px; }
+.profile-dd .btn {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+}
+.profile-dd .btn:hover { filter: brightness(1.05); }

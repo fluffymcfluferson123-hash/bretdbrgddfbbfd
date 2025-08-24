@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" id="tab-favicon" href="favicon.png" />
+    <title id="tab-title">Reset Password</title>
+    <link rel="stylesheet" href="/assets/css/global.css?v=2" />
+    <link rel="stylesheet" href="/assets/css/nav.css" />
+    <link rel="stylesheet" href="/assets/css/auth.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="./assets/-/bundle.js?v=5-5-2024"></script>
+    <script src="./assets/-/config.js?v=5-5-2024"></script>
+    <script src="https://kit.fontawesome.com/1237c86ba0.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/static/ui.css" />
+  <link rel="stylesheet" href="/static/notifications.css" />
+  <script type="module" src="/static/session-nav.js"></script>
+</head>
+  <body class="auth-scope">
+    <div class="fixed-nav-bar"></div>
+    <div class="card">
+      <form id="resetForm">
+        <h2>Reset Password</h2>
+        <input id="username" placeholder="Username" autocomplete="username" />
+        <div class="error" id="userError"></div>
+        <input id="code" placeholder="Recovery code" />
+        <div class="error" id="codeError"></div>
+        <input id="newpass" type="password" placeholder="New password" autocomplete="new-password" />
+        <div class="error" id="passError"></div>
+        <button type="submit">Reset</button>
+      </form>
+      <p><a href="/li">Login</a></p>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/assets/scripts/m.js?v=82"></script>
+    <script>
+      const form = document.getElementById('resetForm');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        userError.textContent = '';
+        codeError.textContent = '';
+        passError.textContent = '';
+        const username = document.getElementById('username').value.trim();
+        const recovery_code = document.getElementById('code').value.trim();
+        const new_password = document.getElementById('newpass').value;
+        if (!username) userError.textContent = 'Required';
+        if (!recovery_code) codeError.textContent = 'Required';
+        if (new_password.length < 8) passError.textContent = 'Minimum 8 characters';
+        if (!username || !recovery_code || new_password.length < 8) return;
+        const res = await fetch('/api/forgot/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, recovery_code, new_password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          Toastify({ text: 'Password reset', duration: 3000, gravity: 'bottom' }).showToast();
+          setTimeout(() => { location.href = '/li'; }, 1500);
+        } else {
+          Toastify({ text: data.error || 'Error', duration: 3000, gravity: 'bottom', style: { background: '#e11' } }).showToast();
+        }
+      });
+    </script>
+  </body>
+</html>

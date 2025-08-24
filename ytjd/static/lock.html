@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Locked</title>
+
+  <!-- existing project CSS (unchanged) -->
+  <link rel="stylesheet" href="/assets/css/global.css?v=2" />
+  <link rel="stylesheet" href="/assets/css/nav.css" />
+  <link rel="stylesheet" href="/assets/css/auth.css" />
+
+  <!-- session/profile/notifications (safe to include; does nothing if logged out) -->
+  <link rel="stylesheet" href="/static/ui.css" />
+  <link rel="stylesheet" href="/static/notifications.css" />
+  <script type="module" src="/static/session-nav.js"></script>
+
+  <!-- lock-page-only quick styles (non-destructive) -->
+  <style>
+    :root { --card-bg: rgba(0,0,0,.7); --card-bd: rgba(255,255,255,.08); --fg: #e8eef8; --muted:#aab4c3; --accent:#3b82f6; }
+    body.auth-scope{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:transparent;}
+    .lock-shell{max-width:440px;width:100%;padding:28px;border-radius:12px;background:var(--card-bg);
+      border:1px solid var(--card-bd); box-shadow:0 20px 60px rgba(0,0,0,.45); color:var(--fg); text-align:center}
+    .lock-shell svg{width:56px;height:56px;margin-bottom:10px;opacity:.9}
+    .lock-shell h1{margin:6px 0 4px;font-size:24px}
+    .lock-shell p{margin:0 0 12px;color:var(--muted)}
+    .actions{display:flex;gap:10px;justify-content:center;margin-top:8px}
+    .btn{padding:10px 14px;border-radius:8px;border:1px solid var(--card-bd);background:#111318;color:var(--fg);text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent;color:#fff}
+    .btn:hover{filter:brightness(1.08)}
+  </style>
+</head>
+<body class="auth-scope">
+  <div class="fixed-nav-bar"></div>
+
+  <div class="lock-shell">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 2a5 5 0 0 0-5 5v3H5v12h14V10h-2V7a5 5 0 0 0-5-5Zm3 8H9V7a3 3 0 0 1 6 0v3Z"/>
+    </svg>
+    <h1>Area Locked</h1>
+    <p>Register or sign in to continue.</p>
+    <div class="actions">
+      <a class="btn primary" href="/signup">Sign up</a>
+      <a class="btn" href="/li">Login</a>
+    </div>
+  </div>
+
+
+  <script src="/assets/scripts/m.js?v=82"></script>
+</body>
+</html>

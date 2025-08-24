@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login • PHSP</title>
+  <link rel="icon" href="/favicon.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+  <style>
+    :root{
+      --bg:#0c0c0e; --card:#101014; --muted:#a8a8b2; --text:#f5f6f7;
+      --border:rgba(255,255,255,.08); --brand:#6ea8ff; --shadow:rgba(0,0,0,.5);
+      --focus:#8cc4ff;
+    }
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; background:
+      radial-gradient(1200px 800px at 0% 0%, #13131a 0%, transparent 60%),
+      radial-gradient(1200px 800px at 100% 100%, #141421 0%, transparent 60%),
+      var(--bg);
+      color:var(--text); font:14px/1.4 system-ui,Segoe UI,Inter,Roboto,Arial,sans-serif; }
+    a{ color:#c9d7ff; text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    .fixed-nav-bar{ height:58px; }
+
+    .wrap{ min-height:calc(100% - 58px); display:grid; place-items:center; padding:40px 16px; }
+    .card{
+      width:min(460px,92vw); background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)) , var(--card);
+      border:1px solid var(--border); border-radius:18px; padding:28px 24px 22px;
+      box-shadow:0 30px 80px var(--shadow), inset 0 1px 0 rgba(255,255,255,.04);
+      backdrop-filter: blur(6px);
+    }
+    .brand{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+    .logo{ width:36px; height:36px; border-radius:10px; background:#1e1f2a; display:grid; place-items:center; border:1px solid var(--border); }
+    .logo i{ font-size:20px; color:#fff; opacity:.9; }
+    .title{ font-weight:800; font-size:22px; letter-spacing:.2px; }
+    .muted{ color:var(--muted); margin-top:2px; font-size:13px; }
+
+    form{ margin-top:18px; display:grid; gap:14px; }
+    .field{ display:grid; gap:8px; }
+    label{ font-size:12px; letter-spacing:.2px; color:#dcdde3; }
+    .input{
+      display:flex; align-items:center; gap:8px; border:1px solid var(--border); border-radius:12px;
+      background:#0e0f12; padding:12px 12px;
+    }
+    .input:focus-within{ border-color:var(--focus); box-shadow:0 0 0 3px rgba(140,196,255,.12); }
+    .input input{
+      width:100%; background:transparent; border:none; outline:none; color:var(--text); font-size:14px;
+    }
+    .icon-btn{ background:#1a1b21; border:1px solid var(--border); color:#dcdde3; width:34px; height:34px; border-radius:8px; display:grid; place-items:center; cursor:pointer; }
+    .icon-btn:hover{ background:#1f2027; }
+    .error{ display:none; color:#ff8080; font-size:12px; margin-top:-4px; }
+    .actions{ display:flex; align-items:center; justify-content:space-between; margin-top:6px; }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;
+      background:linear-gradient(180deg, #2b6bff, #2154d9); border:none; color:#fff; padding:12px 18px;
+      border-radius:12px; font-weight:700; letter-spacing:.2px; box-shadow:0 8px 24px rgba(43,107,255,.28);
+    }
+    .btn:disabled{ opacity:.6; cursor:not-allowed; }
+    .foot{ margin-top:12px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; }
+  </style>
+</head>
+<body>
+  <div class="fixed-nav-bar"></div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">
+        <div class="logo"><i class="ri-shield-star-line"></i></div>
+        <div>
+          <div class="title">Welcome back</div>
+          <div class="muted">Log in to continue</div>
+        </div>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="username">Username</label>
+          <div class="input"><i class="ri-user-3-line"></i><input id="username" name="username" autocomplete="username" required placeholder="yourname"></div>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input">
+            <i class="ri-lock-2-line"></i>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••">
+            <button class="icon-btn" type="button" id="togglePw" title="Show/Hide"><i class="ri-eye-line"></i></button>
+          </div>
+          <div class="error" id="err"></div>
+        </div>
+        <div class="actions">
+          <a href="/forgot">Forgot password?</a>
+          <button class="btn" id="submitBtn" type="submit"><i class="ri-login-circle-line"></i> Login</button>
+        </div>
+      </form>
+
+      <div class="foot">
+        <span>New here?</span>
+        <!-- STANDARDIZED: /si -->
+        <a href="/si">Create an account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- session-nav.js (already guarded to do nothing on /li or /si) -->
+  <script type="module" src="/static/session-nav.js"></script>
+
+  <script>
+    const $ = (s, el=document)=>el.querySelector(s);
+
+    // Toggle password visibility
+    $('#togglePw')?.addEventListener('click', ()=>{
+      const i = $('#password');
+      const vis = i.type === 'password' ? 'text' : 'password';
+      i.type = vis;
+      $('#togglePw i').className = vis === 'password' ? 'ri-eye-line' : 'ri-eye-off-line';
+      i.focus();
+    });
+
+    // Safe session check (no redirects, no JSON parse death)
+    async function checkSession(){
+      try{
+        const r = await fetch('/api/session', { credentials:'same-origin', cache:'no-store' });
+        const ct = r.headers.get('content-type') || '';
+        if (!r.ok || !ct.includes('application/json')) return;
+        const j = await r.json();
+        if (j && j.authenticated) location.replace('/');
+      }catch{/* ignore */}
+    }
+    checkSession();
+
+    // Login submit
+    $('#loginForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const btn = $('#submitBtn'); btn.disabled = true;
+      const errEl = $('#err'); errEl.style.display='none'; errEl.textContent = '';
+
+      try{
+        const body = {
+          username: $('#username').value.trim(),
+          password: $('#password').value
+        };
+        const r = await fetch('/api/login', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          credentials:'same-origin',
+          redirect:'manual',              // avoid accidental full-page redirects from middleware
+          body:JSON.stringify(body)
+        });
+
+        // If server returns 204/200 without JSON, still treat as success.
+        const ct = r.headers.get('content-type') || '';
+        let j = null;
+        if (ct.includes('application/json')) {
+          j = await r.json();
+        }
+
+        if (!r.ok) throw new Error((j && j.error) || 'Login failed');
+
+        // Success
+        location.replace('/');
+      }catch(err){
+        errEl.textContent = err.message || 'Login failed';
+        errEl.style.display='block';
+      }finally{
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

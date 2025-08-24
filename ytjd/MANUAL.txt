@@ -1,0 +1,24 @@
+LOCAL SETUP
+1) Ensure PostgreSQL is running locally on port 5432 with:
+   - database: phsp
+   - user: phsp
+   - password: phsp
+   (You can create them with psql if needed.)
+2) Copy env:
+   cp .env.example .env
+   # Edit .env and set SESSION_SECRET to a long random string.
+3) Install and start:
+   npm install
+   npm start
+4) Verify:
+   - http://localhost:8080/healthz -> {"ok":true}
+   - Visit /signup, create a user (>=8 chars). SAVE the recovery code.
+   - After signup, /as and other locked pages become accessible.
+   - /li to log in; /forgot to reset with the recovery code.
+5) One-account-per-device:
+   - The signup page uses localStorage["phsp_device_id"] and the server enforces unique device_id (second signup on same device returns 429).
+Troubleshooting:
+- ECONNREFUSED -> Postgres not running or wrong DATABASE_URL in .env.
+- Invalid login -> check user in DB; passwords are hashed with bcryptjs.
+- Env not loading -> ensure dotenv is imported at the top of the server entry file.
+- Node engines -> keep existing engines; use a compatible Node version if needed.
