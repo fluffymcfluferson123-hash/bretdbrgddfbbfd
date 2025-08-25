@@ -1,441 +1,832 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <link rel="shortcut icon" href="/favicon.png"/>
-  <title>Owner Panel</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="shortcut icon" href="/favicon.png" />
+    <title>Owner Panel</title>
 
-  <!-- Font: Inter + system fallback -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font: Inter + system fallback -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="/static/ui.css"/>
-  <script type="module" src="/static/session-nav.js"></script>
+    <link rel="stylesheet" href="/static/ui.css" />
+    <script type="module" src="/static/session-nav.js"></script>
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"/>
-  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <style>
-    :root{
-      --bg:#0b0e12;--panel:#0f131a;--panel2:#0c1016;--muted:#a7acb8;--text:#eef1f5;
-      --stroke:rgba(255,255,255,.06);--brand:#7c5cff;--brand2:#00e0ff;--chip:#171b22;
-      --ok:#16a34a;--err:#e11d48;--shadow:0 12px 50px rgba(0,0,0,.45);
-    }
-    html,body{background:var(--bg);color:var(--text);margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    .fixed-nav-bar{height:64px}
-    .wrap{max-width:1280px;margin:84px auto 40px;padding:0 18px}
-    .hero{
-      border:1px solid var(--stroke); border-radius:16px; padding:18px 20px;
-      background:
-        radial-gradient(1100px 400px at 80% -10%, rgba(124,92,255,0.22), transparent 55%),
-        radial-gradient(800px 400px at 20% -20%, rgba(0,224,255,0.16), transparent 60%),
-        linear-gradient(180deg, #121827, #0f131a);
-      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.03);
-      display:flex;align-items:center;justify-content:space-between;gap:16px
-    }
-    .hero h1{margin:0;font-size:20px}
-    .hero p{margin:6px 0 0;color:var(--muted);font-size:13px;max-width:72ch}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{
-      height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);
-      background:#161b22;color:var(--text);cursor:pointer;display:inline-flex;align-items:center;gap:8px;
-      transition:transform .08s ease, background .15s ease, filter .15s ease
-    }
-    .btn:hover{background:#1a1f27}
-    .btn:active{transform:translateY(1px)}
-    .btn-primary{background:linear-gradient(90deg,var(--brand),var(--brand2));border-color:transparent}
-    .btn-primary:hover{filter:brightness(1.06)}
-    .btn-ghost{background:transparent}
-    .btn-sm{height:30px;padding:0 10px;border-radius:8px}
-    .btn-danger{background:#2a0d14;border-color:#4c1d1d}
-    .btn-danger:hover{background:#3a1018}
-    .card{
-      border:1px solid var(--stroke); border-radius:16px; padding:16px;
-      background:linear-gradient(180deg,var(--panel),var(--panel2));
-      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.02);
-    }
-    .tabs{display:flex;gap:8px;margin-top:16px;margin-bottom:12px}
-    .tab{height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--stroke);background:#121722;color:#cfd3df;cursor:pointer}
-    .tab.active{background:#1b2230;color:#fff}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-    @media (max-width:1200px){.grid{grid-template-columns:1fr}}
-    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-    .label{font-size:12px;color:var(--muted)}
-    .input,.textarea,select{width:100%;border-radius:12px;border:1px solid var(--stroke);background:#0b0f14;color:var(--text)}
-    .input{height:40px;padding:0 12px}
-    .textarea{min-height:120px;padding:10px 12px;resize:none;line-height:1.35}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .chip{font-size:11px;padding:4px 8px;border-radius:999px;background:var(--chip);border:1px solid var(--stroke);color:#cfd3df}
-    .table{width:100%;border-collapse:separate;border-spacing:0 8px}
-    .table th{font-size:12px;color:var(--muted);text-align:left;padding:0 8px}
-    .table td{background:#0e121a;border:1px solid var(--stroke);padding:10px 8px}
-    .table tr td:first-child{border-radius:10px 0 0 10px}
-    .table tr td:last-child{border-radius:0 10px 10px 0}
-    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-    @media (max-width:900px){.cards{grid-template-columns:1fr}}
-    .stat{padding:14px;border:1px solid var(--stroke);border-radius:14px;background:#0e121a}
-    .stat .v{font-size:22px;font-weight:700}
-    .modal{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.55);z-index:50}
-    .modal.show{display:grid}
-    .panel{width:min(680px,94vw);background:#0f131a;border:1px solid var(--stroke);border-radius:14px;box-shadow:var(--shadow);padding:14px}
-    .panel h3{margin:0 0 10px}
-    .panel .row-right{display:flex;gap:8px;justify-content:flex-end}
-  </style>
-</head>
-<body>
-  <div class="fixed-nav-bar"></div>
-
-  <div class="wrap">
-    <section class="hero">
-      <div>
-        <h1>Owner Panel</h1>
-        <p>Control center: announcements, users & access, analytics, and direct DB access. All owner-gated.</p>
-      </div>
-      <div class="actions">
-        <a class="btn btn-ghost" href="/">Home</a>
-      </div>
-    </section>
-
-    <div class="tabs">
-      <button class="tab active" data-tab="announce">Announcements</button>
-      <button class="tab" data-tab="users">Users</button>
-      <button class="tab" data-tab="moderation">Moderation</button>
-      <button class="tab" data-tab="analytics">Analytics</button>
-      <button class="tab" data-tab="sql">SQL</button>
-    </div>
-
-    <!-- Announcements -->
-    <section class="card tabpane" id="tab-announce">
-      <div class="grid">
-        <div>
-          <h2>Send notification</h2>
-          <form id="notifyForm" novalidate>
-            <div class="row">
-              <label class="chip"><input type="radio" name="aud" value="global" checked> Global</label>
-              <label class="chip"><input type="radio" name="aud" value="user"> To user</label>
-            </div>
-            <div class="field" id="userRow" style="display:none;">
-              <label class="label" for="toUser">Username</label>
-              <input id="toUser" class="input" placeholder="Exact username"/>
-            </div>
-            <div class="field"><label class="label" for="title">Title</label><input id="title" class="input" maxlength="120" placeholder="Update title"/></div>
-            <div class="field"><label class="label" for="body">Body</label><textarea id="body" class="textarea" placeholder="Write your message…"></textarea></div>
-            <div class="row">
-              <button id="sendBtn" class="btn btn-primary" type="submit"><span class="send-label">Send</span><span class="send-spin" style="display:none"><span class="chip">Sending…</span></span></button>
-              <button id="clearBtn" class="btn" type="button">Clear</button>
-              <button id="loadRecent" class="btn" type="button">Load recent</button>
-            </div>
-          </form>
-        </div>
-        <div>
-          <h2>Recent</h2>
-          <div style="overflow:auto;">
-            <table class="table" id="recentTable"><thead><tr><th>Audience</th><th>Title</th><th>Body</th><th>Created</th></tr></thead><tbody></tbody></table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Users -->
-    <section class="card tabpane" id="tab-users" style="display:none;">
-      <h2>Users</h2>
-      <div class="row" style="margin-bottom:8px;">
-        <input id="uSearch" class="input" placeholder="Search username… (Enter)">
-        <button id="uReload" class="btn">Reload</button>
-        <div style="flex:1"></div>
-        <button id="uCreateOpen" class="btn btn-primary">Create user</button>
-      </div>
-      <div style="overflow:auto;">
-        <table class="table" id="usersTable"><thead><tr><th>ID</th><th>Username</th><th>Device</th><th>Created</th><th>Actions</th></tr></thead><tbody></tbody></table>
-      </div>
-      <div class="row" style="justify-content:flex-end;margin-top:6px;">
-        <button id="uPrev" class="btn btn-sm">Prev</button>
-        <span class="label" id="uPageInfo"></span>
-        <button id="uNext" class="btn btn-sm">Next</button>
-      </div>
-    </section>
-
-    <!-- Moderation -->
-    <section class="card tabpane" id="tab-moderation" style="display:none;">
-      <div class="grid">
-        <div>
-          <h2>Warnings</h2>
-          <form id="warnForm" novalidate style="margin-bottom:14px;">
-            <div class="field"><label class="label" for="wUser">Username</label><input id="wUser" class="input" placeholder="Exact username"/></div>
-            <div class="field"><label class="label" for="wReason">Reason</label><input id="wReason" class="input" placeholder="Why?"/></div>
-            <div class="row"><span class="label">Severity</span>
-              <label class="chip"><input type="radio" name="wSev" value="info" checked> info</label>
-              <label class="chip"><input type="radio" name="wSev" value="low"> low</label>
-              <label class="chip"><input type="radio" name="wSev" value="med"> med</label>
-              <label class="chip"><input type="radio" name="wSev" value="high"> high</label>
-            </div>
-            <div class="row">
-              <button class="btn btn-primary" type="submit">Issue warning</button>
-              <button class="btn" type="button" id="loadWarnings">Load warnings</button>
-            </div>
-          </form>
-
-          <div style="overflow:auto;">
-            <table class="table" id="warnTable"><thead><tr><th>User</th><th>Reason</th><th>Severity</th><th>Issued</th><th>By</th><th>Status</th><th>Actions</th></tr></thead><tbody></tbody></table>
-          </div>
-        </div>
-
-        <div>
-          <h2>Ban / Limit</h2>
-          <form id="banForm" novalidate>
-            <div class="field"><label class="label" for="banUser">Username</label><input id="banUser" class="input" placeholder="Exact username"/></div>
-            <div class="field">
-              <div class="label">Scopes</div>
-              <div class="row" id="scopeRow">
-                <label class="chip"><input type="checkbox" value="site" checked> Entire site</label>
-                <label class="chip"><input type="checkbox" value="/ta"> Tabs (/ta)</label>
-                <label class="chip"><input type="checkbox" value="/as"> Apps (/as)</label>
-                <label class="chip"><input type="checkbox" value="/gm"> Games (/gm)</label>
-                <label class="chip"><input type="checkbox" value="/st"> Settings (/st)</label>
-                <label class="chip"><input type="checkbox" value="/op" disabled> /op</label>
-              </div>
-            </div>
-            <div class="field">
-              <div class="label">Duration</div>
-              <div class="row" id="durSeg">
-                <button class="chip" data-mode="permanent" type="button">Permanent</button>
-                <span class="chip" data-mode="relative">
-                  Relative: <input id="amt" type="number" min="1" value="7" class="input" style="width:90px;height:28px;">
-                  <select id="unit" class="input" style="width:130px;height:28px;"><option value="days">days</option><option value="hours">hours</option><option value="weeks">weeks</option><option value="months">months</option></select>
-                </span>
-                <span class="chip" data-mode="absolute">Until: <input id="abs" type="datetime-local" class="input" style="height:28px;"></span>
-              </div>
-            </div>
-            <div class="field"><label class="label" for="banReason">Reason</label><input id="banReason" class="input" placeholder="Optional"/></div>
-            <div class="row">
-              <button id="banBtn" class="btn btn-danger" type="submit">Apply ban/limit</button>
-              <button id="unbanBtn" class="btn" type="button">Unban user</button>
-              <button id="reloadBans" class="btn" type="button">Reload bans</button>
-              <label class="chip"><input type="checkbox" id="showAll"> Show history</label>
-            </div>
-          </form>
-          <div style="overflow:auto;margin-top:10px;">
-            <table class="table" id="banTable"><thead><tr><th>User</th><th>Scopes</th><th>Reason</th><th>Created</th><th>Expires</th><th>Actions</th></tr></thead><tbody></tbody></table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Analytics -->
-    <section class="card tabpane" id="tab-analytics" style="display:none;">
-      <h2>Analytics</h2>
-      <div class="row" style="margin-bottom:8px;">
-        <label class="label">Range</label>
-        <select id="aDays" class="input" style="max-width:140px;height:34px;">
-          <option value="1">Last 1 day</option>
-          <option value="7" selected>Last 7 days</option>
-          <option value="30">Last 30 days</option>
-          <option value="90">Last 90 days</option>
-        </select>
-        <label class="label">Bucket</label>
-        <select id="aBucket" class="input" style="max-width:140px;height:34px;">
-          <option value="day" selected>Daily</option>
-          <option value="hour">Hourly</option>
-        </select>
-        <button id="aReload" class="btn">Reload</button>
-      </div>
-
-      <div class="cards" style="margin-bottom:12px;">
-        <div class="stat"><div class="label">Pageviews</div><div class="v" id="pv">—</div></div>
-        <div class="stat"><div class="label">Unique visitors</div><div class="v" id="uv">—</div></div>
-        <div class="stat"><div class="label">Active users</div><div class="v" id="au">—</div></div>
-      </div>
-
-      <div class="grid">
-        <div class="card" style="background:#0b0f14;">
-          <canvas id="tsChart" height="180"></canvas>
-        </div>
-        <div>
-          <div class="card" style="margin-bottom:12px;">
-            <h3 style="margin:0 0 8px">Top paths</h3>
-            <div style="max-height:240px;overflow:auto">
-              <table class="table" id="topPaths"><thead><tr><th>Path</th><th>PV</th></tr></thead><tbody></tbody></table>
-            </div>
-          </div>
-          <div class="card">
-            <h3 style="margin:0 0 8px">Top users</h3>
-            <div style="max-height:240px;overflow:auto">
-              <table class="table" id="topUsers"><thead><tr><th>User</th><th>PV</th></tr></thead><tbody></tbody></table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SQL -->
-    <section class="card tabpane" id="tab-sql" style="display:none;">
-      <h2>Database console</h2>
-      <div class="field">
-        <label class="label">SQL (single statement; SELECT capped 500 rows)</label>
-        <textarea id="sql" class="textarea" placeholder="SELECT id, username, created_at FROM users ORDER BY created_at DESC LIMIT 50;"></textarea>
-      </div>
-      <div class="row">
-        <button id="runSQL" class="btn btn-primary">Run</button>
-        <button id="clearSQL" class="btn">Clear</button>
-        <span id="sqlInfo" class="label"></span>
-      </div>
-      <div id="sqlResult" style="margin-top:12px;overflow:auto;"></div>
-    </section>
-  </div>
-
-  <!-- Modals -->
-  <div class="modal" id="userModal">
-    <div class="panel">
-      <h3>Edit user</h3>
-      <div class="field"><label class="label">User ID</label><input id="mId" class="input" disabled></div>
-      <div class="field"><label class="label">Username</label><input id="mUsername" class="input"></div>
-      <div class="field"><label class="label">Device ID</label><input id="mDevice" class="input" placeholder="optional"></div>
-      <div class="row-right">
-        <button id="mSave" class="btn btn-primary">Save</button>
-        <button id="mClose" class="btn">Close</button>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <button id="mResetPw" class="btn">Reset password</button>
-        <button id="mRegenRec" class="btn">Regenerate recovery</button>
-        <button id="mDelete" class="btn btn-danger">Delete user</button>
-      </div>
-      <div id="mInfo" class="label" style="margin-top:8px;"></div>
-    </div>
-  </div>
-
-  <!-- Create user modal -->
-  <div class="modal" id="createModal">
-    <div class="panel">
-      <h3>Create user</h3>
-      <div class="field"><label class="label">Username</label><input id="cUsername" class="input"></div>
-      <div class="field"><label class="label">Password</label><input id="cPassword" class="input" type="password" placeholder="min 8 chars"></div>
-      <div class="field"><label class="label">Device ID (optional)</label><input id="cDevice" class="input"></div>
-      <div class="row-right">
-        <button id="cCreate" class="btn btn-primary">Create</button>
-        <button id="cClose" class="btn">Close</button>
-      </div>
-      <div id="cInfo" class="label" style="margin-top:8px;"></div>
-    </div>
-  </div>
-
-  <script type="module">
-    // Gate
-    const gate = await fetch('/api/session').then(r=>r.json()).catch(()=>null);
-    if (!gate || gate.role !== 'owner') location.href='/';
-
-    const $ = (s, r=document)=>r.querySelector(s);
-    const $$ = (s, r=document)=>Array.from(r.querySelectorAll(s));
-    const Toast = (t, ok=true)=>window.Toastify && Toastify({ text:t,duration:2500,gravity:'top',position:'right',style:{background: ok?'linear-gradient(90deg,#22c55e,#16a34a)':'#e11d48'} }).showToast();
-    const esc = (s)=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-
-    // Tabs
-    const panes = {
-      announce: $('#tab-announce'),
-      users: $('#tab-users'),
-      moderation: $('#tab-moderation'),
-      analytics: $('#tab-analytics'),
-      sql: $('#tab-sql'),
-    };
-    $$('.tab').forEach(b=>{
-      b.addEventListener('click', ()=>{
-        $$('.tab').forEach(x=>x.classList.remove('active'));
-        b.classList.add('active');
-        Object.values(panes).forEach(p=>p.style.display='none');
-        panes[b.dataset.tab].style.display='';
-      });
-    });
-
-    // ---------------- Announcements ----------------
-    const aud = Array.from(document.querySelectorAll('input[name="aud"]'));
-    const userRow = $('#userRow');
-    const toUser=$('#toUser'), title=$('#title'), body=$('#body');
-    const sendBtn=$('#sendBtn'), sendLabel=$('.send-label'), sendSpin=$('.send-spin');
-    const recentTable=$('#recentTable tbody');
-
-    function toggleUserRow(){ userRow.style.display = (aud.find(n=>n.checked)?.value==='user') ? 'block':'none'; }
-    aud.forEach(n=>n.addEventListener('change', toggleUserRow)); toggleUserRow();
-
-    $('#notifyForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const audience = aud.find(n=>n.checked)?.value || 'global';
-      const payload = { audience, title: title.value.trim(), body: body.value.trim() };
-      if (!payload.title || !payload.body) return Toast('Title and body required', false);
-      if (audience==='user'){
-        const u = toUser.value.trim(); if (!u) return Toast('Username required', false);
-        payload.username = u;
+    <style>
+      :root {
+        --bg: #0b0e12;
+        --panel: #0f131a;
+        --panel2: #0c1016;
+        --muted: #a7acb8;
+        --text: #eef1f5;
+        --stroke: rgba(255, 255, 255, 0.06);
+        --brand: #7c5cff;
+        --brand2: #00e0ff;
+        --chip: #171b22;
+        --ok: #16a34a;
+        --err: #e11d48;
+        --shadow: 0 12px 50px rgba(0, 0, 0, 0.45);
       }
-      sendBtn.disabled=true; sendLabel.style.display='none'; sendSpin.style.display='';
-      try{
-        const r = await fetch('/api/admin/notify',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});
-        const d = await r.json().catch(()=>({}));
-        if (!r.ok) throw new Error(d?.error||'Failed');
-        Toast('Sent'); e.target.reset(); toggleUserRow(); loadRecent();
-      }catch(err){ Toast(err.message||'Error', false); }
-      finally{ sendBtn.disabled=false; sendLabel.style.display=''; sendSpin.style.display='none'; }
-    });
-    $('#clearBtn').addEventListener('click', ()=>$('#notifyForm').reset());
-    $('#loadRecent').addEventListener('click', loadRecent);
-
-    async function loadRecent(){
-      recentTable.innerHTML = `<tr><td colspan="4">Loading…</td></tr>`;
-      try{
-        const r = await fetch('/api/admin/notifications');
-        if (!r.ok) throw 0;
-        const d = await r.json();
-        recentTable.innerHTML = '';
-        for (const n of d.items){
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${n.audience}${n.audience==='user' ? `:${esc(n.to_username||'')}` : ''}</td>
-            <td>${esc(n.title||'')}</td>
-            <td>${esc(n.body||'')}</td>
-            <td>${new Date(n.created_at).toLocaleString()}</td>
-          `;
-          recentTable.appendChild(tr);
+      html,
+      body {
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Helvetica,
+          Arial;
+      }
+      .fixed-nav-bar {
+        height: 64px;
+      }
+      .wrap {
+        max-width: 1280px;
+        margin: 84px auto 40px;
+        padding: 0 18px;
+      }
+      .hero {
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 18px 20px;
+        background: radial-gradient(1100px 400px at 80% -10%, rgba(124, 92, 255, 0.22), transparent 55%),
+          radial-gradient(800px 400px at 20% -20%, rgba(0, 224, 255, 0.16), transparent 60%), linear-gradient(180deg, #121827, #0f131a);
+        box-shadow:
+          var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+      .hero h1 {
+        margin: 0;
+        font-size: 20px;
+      }
+      .hero p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        max-width: 72ch;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid var(--stroke);
+        background: #161b22;
+        color: var(--text);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition:
+          transform 0.08s ease,
+          background 0.15s ease,
+          filter 0.15s ease;
+      }
+      .btn:hover {
+        background: #1a1f27;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn-primary {
+        background: linear-gradient(90deg, var(--brand), var(--brand2));
+        border-color: transparent;
+      }
+      .btn-primary:hover {
+        filter: brightness(1.06);
+      }
+      .btn-ghost {
+        background: transparent;
+      }
+      .btn-sm {
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 8px;
+      }
+      .btn-danger {
+        background: #2a0d14;
+        border-color: #4c1d1d;
+      }
+      .btn-danger:hover {
+        background: #3a1018;
+      }
+      .card {
+        border: 1px solid var(--stroke);
+        border-radius: 16px;
+        padding: 16px;
+        background: linear-gradient(180deg, var(--panel), var(--panel2));
+        box-shadow:
+          var(--shadow),
+          inset 0 1px 0 rgba(255, 255, 255, 0.02);
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+        margin-bottom: 12px;
+      }
+      .tab {
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid var(--stroke);
+        background: #121722;
+        color: #cfd3df;
+        cursor: pointer;
+      }
+      .tab.active {
+        background: #1b2230;
+        color: #fff;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 1200px) {
+        .grid {
+          grid-template-columns: 1fr;
         }
-      }catch{ recentTable.innerHTML = `<tr><td colspan="4">Failed to load.</td></tr>`; }
-    }
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 12px;
+      }
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .input,
+      .textarea,
+      select {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--stroke);
+        background: #0b0f14;
+        color: var(--text);
+      }
+      .input {
+        height: 40px;
+        padding: 0 12px;
+      }
+      .textarea {
+        min-height: 120px;
+        padding: 10px 12px;
+        resize: none;
+        line-height: 1.35;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .op-status-planned {
+        color: var(--muted);
+      }
+      .op-status-in-progress {
+        color: var(--brand2);
+      }
+      .op-status-done {
+        color: var(--ok);
+      }
+      .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+      }
+      .table th {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: left;
+        padding: 0 8px;
+      }
+      .table td {
+        background: #0e121a;
+        border: 1px solid var(--stroke);
+        padding: 10px 8px;
+      }
+      .table tr td:first-child {
+        border-radius: 10px 0 0 10px;
+      }
+      .table tr td:last-child {
+        border-radius: 0 10px 10px 0;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      @media (max-width: 900px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+      .stat {
+        padding: 14px;
+        border: 1px solid var(--stroke);
+        border-radius: 14px;
+        background: #0e121a;
+      }
+      .stat .v {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        place-items: center;
+        background: rgba(0, 0, 0, 0.55);
+        z-index: 50;
+      }
+      .modal.show {
+        display: grid;
+      }
+      .panel {
+        width: min(680px, 94vw);
+        background: #0f131a;
+        border: 1px solid var(--stroke);
+        border-radius: 14px;
+        box-shadow: var(--shadow);
+        padding: 14px;
+      }
+      .panel h3 {
+        margin: 0 0 10px;
+      }
+      .panel .row-right {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="fixed-nav-bar"></div>
 
-    // ---------------- Users ----------------
-    let uPage = 1, uLimit = 25, uQuery = '';
-    const usersTable = $('#usersTable tbody');
-    const uPageInfo = $('#uPageInfo');
-    const userModal = $('#userModal'); const mId=$('#mId'), mUsername=$('#mUsername'), mDevice=$('#mDevice'); const mInfo=$('#mInfo');
+    <div class="wrap">
+      <section class="hero">
+        <div>
+          <h1>Owner Panel</h1>
+          <p>Control center: announcements, users & access, analytics, and direct DB access. All owner-gated.</p>
+        </div>
+        <div class="actions">
+          <a class="btn btn-ghost" href="/">Home</a>
+        </div>
+      </section>
 
-    $('#uSearch').addEventListener('keydown', e=>{ if (e.key==='Enter'){ uQuery = e.target.value.trim(); uPage=1; loadUsers(); } });
-    $('#uReload').addEventListener('click', ()=>loadUsers());
-    $('#uPrev').addEventListener('click', ()=>{ if (uPage>1){ uPage--; loadUsers(); } });
-    $('#uNext').addEventListener('click', ()=>{ uPage++; loadUsers(); });
+      <div class="tabs">
+        <button class="tab active" data-tab="announce">Announcements</button>
+        <button class="tab" data-tab="users">Users</button>
+        <button class="tab" data-tab="moderation">Moderation</button>
+        <button class="tab" data-tab="analytics">Analytics</button>
+        <button class="tab" data-tab="sql">SQL</button>
+        <button class="tab" data-tab="roadmaps">Roadmaps</button>
+      </div>
 
-    $('#uCreateOpen').addEventListener('click', ()=> $('#createModal').classList.add('show'));
-    $('#cClose').addEventListener('click', ()=> $('#createModal').classList.remove('show'));
-    $('#cCreate').addEventListener('click', async ()=>{
-      const username = $('#cUsername').value.trim();
-      const password = $('#cPassword').value;
-      const device = $('#cDevice').value.trim() || null;
-      if (!username || !password || password.length<8) return Toast('Username + strong password required', false);
-      const r = await fetch('/api/admin/users/create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password,device_id:device})});
-      const d = await r.json().catch(()=>({}));
-      if (!r.ok) return Toast(d.error||'Failed', false);
-      Toast('User created'); $('#createModal').classList.remove('show'); loadUsers();
-    });
+      <!-- Announcements -->
+      <section class="card tabpane" id="tab-announce">
+        <div class="grid">
+          <div>
+            <h2>Send notification</h2>
+            <form id="notifyForm" novalidate>
+              <div class="row">
+                <label class="chip"><input type="radio" name="aud" value="global" checked /> Global</label>
+                <label class="chip"><input type="radio" name="aud" value="user" /> To user</label>
+              </div>
+              <div class="field" id="userRow" style="display: none">
+                <label class="label" for="toUser">Username</label>
+                <input id="toUser" class="input" placeholder="Exact username" />
+              </div>
+              <div class="field">
+                <label class="label" for="title">Title</label><input id="title" class="input" maxlength="120" placeholder="Update title" />
+              </div>
+              <div class="field">
+                <label class="label" for="body">Body</label><textarea id="body" class="textarea" placeholder="Write your message…"></textarea>
+              </div>
+              <div class="row">
+                <button id="sendBtn" class="btn btn-primary" type="submit">
+                  <span class="send-label">Send</span><span class="send-spin" style="display: none"><span class="chip">Sending…</span></span>
+                </button>
+                <button id="clearBtn" class="btn" type="button">Clear</button>
+                <button id="loadRecent" class="btn" type="button">Load recent</button>
+              </div>
+            </form>
+          </div>
+          <div>
+            <h2>Recent</h2>
+            <div style="overflow: auto">
+              <table class="table" id="recentTable">
+                <thead>
+                  <tr>
+                    <th>Audience</th>
+                    <th>Title</th>
+                    <th>Body</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    async function loadUsers(){
-      usersTable.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
-      try{
-        const r = await fetch(`/api/admin/users?q=${encodeURIComponent(uQuery)}&page=${uPage}&limit=${uLimit}`);
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error||'Failed');
-        usersTable.innerHTML = '';
-        if (!d.items.length){ usersTable.innerHTML = `<tr><td colspan="5">No users.</td></tr>`; }
-        d.items.forEach(row=>{
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
+      <!-- Users -->
+      <section class="card tabpane" id="tab-users" style="display: none">
+        <h2>Users</h2>
+        <div class="row" style="margin-bottom: 8px">
+          <input id="uSearch" class="input" placeholder="Search username… (Enter)" />
+          <button id="uReload" class="btn">Reload</button>
+          <div style="flex: 1"></div>
+          <button id="uCreateOpen" class="btn btn-primary">Create user</button>
+        </div>
+        <div style="overflow: auto">
+          <table class="table" id="usersTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Device</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="row" style="justify-content: flex-end; margin-top: 6px">
+          <button id="uPrev" class="btn btn-sm">Prev</button>
+          <span class="label" id="uPageInfo"></span>
+          <button id="uNext" class="btn btn-sm">Next</button>
+        </div>
+      </section>
+
+      <!-- Moderation -->
+      <section class="card tabpane" id="tab-moderation" style="display: none">
+        <div class="grid">
+          <div>
+            <h2>Warnings</h2>
+            <form id="warnForm" novalidate style="margin-bottom: 14px">
+              <div class="field"><label class="label" for="wUser">Username</label><input id="wUser" class="input" placeholder="Exact username" /></div>
+              <div class="field"><label class="label" for="wReason">Reason</label><input id="wReason" class="input" placeholder="Why?" /></div>
+              <div class="row">
+                <span class="label">Severity</span>
+                <label class="chip"><input type="radio" name="wSev" value="info" checked /> info</label>
+                <label class="chip"><input type="radio" name="wSev" value="low" /> low</label>
+                <label class="chip"><input type="radio" name="wSev" value="med" /> med</label>
+                <label class="chip"><input type="radio" name="wSev" value="high" /> high</label>
+              </div>
+              <div class="row">
+                <button class="btn btn-primary" type="submit">Issue warning</button>
+                <button class="btn" type="button" id="loadWarnings">Load warnings</button>
+              </div>
+            </form>
+
+            <div style="overflow: auto">
+              <table class="table" id="warnTable">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Reason</th>
+                    <th>Severity</th>
+                    <th>Issued</th>
+                    <th>By</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h2>Ban / Limit</h2>
+            <form id="banForm" novalidate>
+              <div class="field"><label class="label" for="banUser">Username</label><input id="banUser" class="input" placeholder="Exact username" /></div>
+              <div class="field">
+                <div class="label">Scopes</div>
+                <div class="row" id="scopeRow">
+                  <label class="chip"><input type="checkbox" value="site" checked /> Entire site</label>
+                  <label class="chip"><input type="checkbox" value="/ta" /> Tabs (/ta)</label>
+                  <label class="chip"><input type="checkbox" value="/as" /> Apps (/as)</label>
+                  <label class="chip"><input type="checkbox" value="/gm" /> Games (/gm)</label>
+                  <label class="chip"><input type="checkbox" value="/st" /> Settings (/st)</label>
+                  <label class="chip"><input type="checkbox" value="/op" disabled /> /op</label>
+                </div>
+              </div>
+              <div class="field">
+                <div class="label">Duration</div>
+                <div class="row" id="durSeg">
+                  <button class="chip" data-mode="permanent" type="button">Permanent</button>
+                  <span class="chip" data-mode="relative">
+                    Relative: <input id="amt" type="number" min="1" value="7" class="input" style="width: 90px; height: 28px" />
+                    <select id="unit" class="input" style="width: 130px; height: 28px">
+                      <option value="days">days</option>
+                      <option value="hours">hours</option>
+                      <option value="weeks">weeks</option>
+                      <option value="months">months</option>
+                    </select>
+                  </span>
+                  <span class="chip" data-mode="absolute">Until: <input id="abs" type="datetime-local" class="input" style="height: 28px" /></span>
+                </div>
+              </div>
+              <div class="field"><label class="label" for="banReason">Reason</label><input id="banReason" class="input" placeholder="Optional" /></div>
+              <div class="row">
+                <button id="banBtn" class="btn btn-danger" type="submit">Apply ban/limit</button>
+                <button id="unbanBtn" class="btn" type="button">Unban user</button>
+                <button id="reloadBans" class="btn" type="button">Reload bans</button>
+                <label class="chip"><input type="checkbox" id="showAll" /> Show history</label>
+              </div>
+            </form>
+            <div style="overflow: auto; margin-top: 10px">
+              <table class="table" id="banTable">
+                <thead>
+                  <tr>
+                    <th>User</th>
+                    <th>Scopes</th>
+                    <th>Reason</th>
+                    <th>Created</th>
+                    <th>Expires</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section class="card tabpane" id="tab-analytics" style="display: none">
+        <h2>Analytics</h2>
+        <div class="row" style="margin-bottom: 8px">
+          <label class="label">Range</label>
+          <select id="aDays" class="input" style="max-width: 140px; height: 34px">
+            <option value="1">Last 1 day</option>
+            <option value="7" selected>Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+          <label class="label">Bucket</label>
+          <select id="aBucket" class="input" style="max-width: 140px; height: 34px">
+            <option value="day" selected>Daily</option>
+            <option value="hour">Hourly</option>
+          </select>
+          <button id="aReload" class="btn">Reload</button>
+        </div>
+
+        <div class="cards" style="margin-bottom: 12px">
+          <div class="stat">
+            <div class="label">Pageviews</div>
+            <div class="v" id="pv">—</div>
+          </div>
+          <div class="stat">
+            <div class="label">Unique visitors</div>
+            <div class="v" id="uv">—</div>
+          </div>
+          <div class="stat">
+            <div class="label">Active users</div>
+            <div class="v" id="au">—</div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card" style="background: #0b0f14">
+            <canvas id="tsChart" height="180"></canvas>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom: 12px">
+              <h3 style="margin: 0 0 8px">Top paths</h3>
+              <div style="max-height: 240px; overflow: auto">
+                <table class="table" id="topPaths">
+                  <thead>
+                    <tr>
+                      <th>Path</th>
+                      <th>PV</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card">
+              <h3 style="margin: 0 0 8px">Top users</h3>
+              <div style="max-height: 240px; overflow: auto">
+                <table class="table" id="topUsers">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>PV</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SQL -->
+      <section class="card tabpane" id="tab-sql" style="display: none">
+        <h2>Database console</h2>
+        <div class="field">
+          <label class="label">SQL (single statement; SELECT capped 500 rows)</label>
+          <textarea id="sql" class="textarea" placeholder="SELECT id, username, created_at FROM users ORDER BY created_at DESC LIMIT 50;"></textarea>
+        </div>
+        <div class="row">
+          <button id="runSQL" class="btn btn-primary">Run</button>
+          <button id="clearSQL" class="btn">Clear</button>
+          <span id="sqlInfo" class="label"></span>
+        </div>
+        <div id="sqlResult" style="margin-top: 12px; overflow: auto"></div>
+      </section>
+      <section class="card tabpane" id="tab-roadmaps" style="display: none">
+        <div class="grid">
+          <div class="card op-rm-form">
+            <h2>Roadmaps</h2>
+            <form id="rmForm">
+              <input type="hidden" id="rmId" />
+              <div class="field"><label class="label" for="rmTitle">Title</label><input id="rmTitle" class="input" required /></div>
+              <div class="field">
+                <label class="label" for="rmStatus">Status</label
+                ><select id="rmStatus" class="input">
+                  <option value="planned">planned</option>
+                  <option value="in-progress">in-progress</option>
+                  <option value="done">done</option>
+                </select>
+              </div>
+              <div class="field"><label class="label" for="rmTarget">Target date</label><input id="rmTarget" class="input" type="date" /></div>
+              <div class="field"><label class="label" for="rmSort">Sort order</label><input id="rmSort" class="input" type="number" value="1000" /></div>
+              <div class="field"><label class="label" for="rmDesc">Description</label><textarea id="rmDesc" class="textarea"></textarea></div>
+              <div class="row">
+                <button class="btn btn-primary" type="submit" id="rmSave">Save</button><button class="btn btn-ghost" type="button" id="rmClear">Clear</button>
+              </div>
+            </form>
+          </div>
+          <div class="card op-rm-list">
+            <h2>Existing</h2>
+            <table class="table" id="rmTable">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Status</th>
+                  <th>Target</th>
+                  <th>Sort</th>
+                  <th>Updated</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="userModal">
+      <div class="panel">
+        <h3>Edit user</h3>
+        <div class="field"><label class="label">User ID</label><input id="mId" class="input" disabled /></div>
+        <div class="field"><label class="label">Username</label><input id="mUsername" class="input" /></div>
+        <div class="field"><label class="label">Device ID</label><input id="mDevice" class="input" placeholder="optional" /></div>
+        <div class="row-right">
+          <button id="mSave" class="btn btn-primary">Save</button>
+          <button id="mClose" class="btn">Close</button>
+        </div>
+        <div class="row" style="margin-top: 10px">
+          <button id="mResetPw" class="btn">Reset password</button>
+          <button id="mRegenRec" class="btn">Regenerate recovery</button>
+          <button id="mDelete" class="btn btn-danger">Delete user</button>
+        </div>
+        <div id="mInfo" class="label" style="margin-top: 8px"></div>
+      </div>
+    </div>
+
+    <!-- Create user modal -->
+    <div class="modal" id="createModal">
+      <div class="panel">
+        <h3>Create user</h3>
+        <div class="field"><label class="label">Username</label><input id="cUsername" class="input" /></div>
+        <div class="field"><label class="label">Password</label><input id="cPassword" class="input" type="password" placeholder="min 8 chars" /></div>
+        <div class="field"><label class="label">Device ID (optional)</label><input id="cDevice" class="input" /></div>
+        <div class="row-right">
+          <button id="cCreate" class="btn btn-primary">Create</button>
+          <button id="cClose" class="btn">Close</button>
+        </div>
+        <div id="cInfo" class="label" style="margin-top: 8px"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      // Gate
+      const gate = await fetch("/api/session")
+        .then((r) => r.json())
+        .catch(() => null)
+      if (!gate || gate.role !== "owner") location.href = "/"
+
+      const $ = (s, r = document) => r.querySelector(s)
+      const $$ = (s, r = document) => Array.from(r.querySelectorAll(s))
+      const Toast = (t, ok = true) =>
+        window.Toastify &&
+        Toastify({
+          text: t,
+          duration: 2500,
+          gravity: "top",
+          position: "right",
+          style: { background: ok ? "linear-gradient(90deg,#22c55e,#16a34a)" : "#e11d48" },
+        }).showToast()
+      const esc = (s) =>
+        String(s ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;")
+
+      // Tabs
+      const panes = {
+        announce: $("#tab-announce"),
+        users: $("#tab-users"),
+        moderation: $("#tab-moderation"),
+        analytics: $("#tab-analytics"),
+        sql: $("#tab-sql"),
+      }
+      $$(".tab").forEach((b) => {
+        b.addEventListener("click", () => {
+          $$(".tab").forEach((x) => x.classList.remove("active"))
+          b.classList.add("active")
+          Object.values(panes).forEach((p) => (p.style.display = "none"))
+          panes[b.dataset.tab].style.display = ""
+        })
+      })
+
+      // ---------------- Announcements ----------------
+      const aud = Array.from(document.querySelectorAll('input[name="aud"]'))
+      const userRow = $("#userRow")
+      const toUser = $("#toUser"),
+        title = $("#title"),
+        body = $("#body")
+      const sendBtn = $("#sendBtn"),
+        sendLabel = $(".send-label"),
+        sendSpin = $(".send-spin")
+      const recentTable = $("#recentTable tbody")
+
+      function toggleUserRow() {
+        userRow.style.display = aud.find((n) => n.checked)?.value === "user" ? "block" : "none"
+      }
+      aud.forEach((n) => n.addEventListener("change", toggleUserRow))
+      toggleUserRow()
+
+      $("#notifyForm").addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const audience = aud.find((n) => n.checked)?.value || "global"
+        const payload = { audience, title: title.value.trim(), body: body.value.trim() }
+        if (!payload.title || !payload.body) return Toast("Title and body required", false)
+        if (audience === "user") {
+          const u = toUser.value.trim()
+          if (!u) return Toast("Username required", false)
+          payload.username = u
+        }
+        sendBtn.disabled = true
+        sendLabel.style.display = "none"
+        sendSpin.style.display = ""
+        try {
+          const r = await fetch("/api/admin/notify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify(payload),
+          })
+          const d = await r.json().catch(() => ({}))
+          if (!r.ok) throw new Error(d?.error || "Failed")
+          Toast("Sent")
+          e.target.reset()
+          toggleUserRow()
+          loadRecent()
+        } catch (err) {
+          Toast(err.message || "Error", false)
+        } finally {
+          sendBtn.disabled = false
+          sendLabel.style.display = ""
+          sendSpin.style.display = "none"
+        }
+      })
+      $("#clearBtn").addEventListener("click", () => $("#notifyForm").reset())
+      $("#loadRecent").addEventListener("click", loadRecent)
+
+      async function loadRecent() {
+        recentTable.innerHTML = `<tr><td colspan="4">Loading…</td></tr>`
+        try {
+          const r = await fetch("/api/admin/notifications")
+          if (!r.ok) throw 0
+          const d = await r.json()
+          recentTable.innerHTML = ""
+          for (const n of d.items) {
+            const tr = document.createElement("tr")
+            tr.innerHTML = `
+            <td>${n.audience}${n.audience === "user" ? `:${esc(n.to_username || "")}` : ""}</td>
+            <td>${esc(n.title || "")}</td>
+            <td>${esc(n.body || "")}</td>
+            <td>${new Date(n.created_at).toLocaleString()}</td>
+          `
+            recentTable.appendChild(tr)
+          }
+        } catch {
+          recentTable.innerHTML = `<tr><td colspan="4">Failed to load.</td></tr>`
+        }
+      }
+
+      // ---------------- Users ----------------
+      let uPage = 1,
+        uLimit = 25,
+        uQuery = ""
+      const usersTable = $("#usersTable tbody")
+      const uPageInfo = $("#uPageInfo")
+      const userModal = $("#userModal")
+      const mId = $("#mId"),
+        mUsername = $("#mUsername"),
+        mDevice = $("#mDevice")
+      const mInfo = $("#mInfo")
+
+      $("#uSearch").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          uQuery = e.target.value.trim()
+          uPage = 1
+          loadUsers()
+        }
+      })
+      $("#uReload").addEventListener("click", () => loadUsers())
+      $("#uPrev").addEventListener("click", () => {
+        if (uPage > 1) {
+          uPage--
+          loadUsers()
+        }
+      })
+      $("#uNext").addEventListener("click", () => {
+        uPage++
+        loadUsers()
+      })
+
+      $("#uCreateOpen").addEventListener("click", () => $("#createModal").classList.add("show"))
+      $("#cClose").addEventListener("click", () => $("#createModal").classList.remove("show"))
+      $("#cCreate").addEventListener("click", async () => {
+        const username = $("#cUsername").value.trim()
+        const password = $("#cPassword").value
+        const device = $("#cDevice").value.trim() || null
+        if (!username || !password || password.length < 8) return Toast("Username + strong password required", false)
+        const r = await fetch("/api/admin/users/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password, device_id: device }),
+        })
+        const d = await r.json().catch(() => ({}))
+        if (!r.ok) return Toast(d.error || "Failed", false)
+        Toast("User created")
+        $("#createModal").classList.remove("show")
+        loadUsers()
+      })
+
+      async function loadUsers() {
+        usersTable.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`
+        try {
+          const r = await fetch(`/api/admin/users?q=${encodeURIComponent(uQuery)}&page=${uPage}&limit=${uLimit}`)
+          const d = await r.json()
+          if (!r.ok) throw new Error(d.error || "Failed")
+          usersTable.innerHTML = ""
+          if (!d.items.length) {
+            usersTable.innerHTML = `<tr><td colspan="5">No users.</td></tr>`
+          }
+          d.items.forEach((row) => {
+            const tr = document.createElement("tr")
+            tr.innerHTML = `
             <td>${row.id}</td>
             <td>${esc(row.username)}</td>
-            <td>${esc(row.device_id||'')}</td>
+            <td>${esc(row.device_id || "")}</td>
             <td>${new Date(row.created_at).toLocaleString()}</td>
             <td>
               <button class="btn btn-sm" data-act="view" data-id="${row.id}">View</button>
@@ -443,228 +834,461 @@
               <button class="btn btn-sm" data-act="rpw" data-id="${row.id}">Reset PW</button>
               <button class="btn btn-sm btn-danger" data-act="del" data-id="${row.id}">Delete</button>
             </td>
-          `;
-          usersTable.appendChild(tr);
-        });
-        uPageInfo.textContent = `Page ${d.page} — ${d.total} total`;
-        usersTable.querySelectorAll('button[data-id]').forEach(btn=>{
-          btn.addEventListener('click', ()=> userAction(btn.dataset.act, parseInt(btn.dataset.id,10)));
-        });
-      }catch(e){ usersTable.innerHTML = `<tr><td colspan="5">${esc(e.message||'Failed')}</td></tr>`; }
-    }
-
-    async function userAction(act, id){
-      if (act==='view' || act==='edit'){
-        const r = await fetch(`/api/admin/user/${id}`); const d = await r.json();
-        if (!r.ok) return Toast(d.error||'Failed', false);
-        mId.value = d.user.id; mUsername.value = d.user.username; mDevice.value = d.user.device_id||''; mInfo.textContent='';
-        userModal.classList.add('show');
-      } else if (act==='rpw'){
-        const pw = prompt('New password (min 8 chars):'); if (!pw) return;
-        if (pw.length<8) return Toast('Too short', false);
-        const r = await fetch('/api/admin/users/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, new_password:pw})});
-        if (r.ok) Toast('Password reset'); else Toast('Failed', false);
-      } else if (act==='del'){
-        if (!confirm('Delete this user?')) return;
-        const r = await fetch('/api/admin/users/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-        if (r.ok){ Toast('Deleted'); loadUsers(); } else { const d=await r.json().catch(()=>({})); Toast(d.error||'Failed', false); }
+          `
+            usersTable.appendChild(tr)
+          })
+          uPageInfo.textContent = `Page ${d.page} — ${d.total} total`
+          usersTable.querySelectorAll("button[data-id]").forEach((btn) => {
+            btn.addEventListener("click", () => userAction(btn.dataset.act, parseInt(btn.dataset.id, 10)))
+          })
+        } catch (e) {
+          usersTable.innerHTML = `<tr><td colspan="5">${esc(e.message || "Failed")}</td></tr>`
+        }
       }
-    }
 
-    $('#mClose').addEventListener('click', ()=> userModal.classList.remove('show'));
-    $('#mSave').addEventListener('click', async ()=>{
-      const id = parseInt(mId.value,10);
-      const username = mUsername.value.trim(); const device_id = (mDevice.value||'').trim()||null;
-      const r = await fetch('/api/admin/users/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, username, device_id})});
-      const d = await r.json().catch(()=>({}));
-      if (!r.ok) return (mInfo.textContent = d.error||'Failed'), Toast(d.error||'Failed', false);
-      mInfo.textContent = 'Saved'; Toast('Saved'); loadUsers();
-    });
-    $('#mResetPw').addEventListener('click', async ()=>{
-      const id = parseInt(mId.value,10);
-      const pw = prompt('New password (min 8 chars):'); if (!pw) return;
-      if (pw.length<8) return Toast('Too short', false);
-      const r = await fetch('/api/admin/users/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id, new_password:pw})});
-      if (r.ok) Toast('Password reset'); else Toast('Failed', false);
-    });
-    $('#mRegenRec').addEventListener('click', async ()=>{
-      const id = parseInt(mId.value,10);
-      const r = await fetch('/api/admin/users/regenerate-recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-      const d = await r.json().catch(()=>({}));
-      if (r.ok){ mInfo.textContent = `Recovery: ${d.recovery_code}`; Toast('Regenerated'); }
-      else Toast(d.error||'Failed', false);
-    });
-    $('#mDelete').addEventListener('click', async ()=>{
-      const id = parseInt(mId.value,10);
-      if (!confirm('Delete this user?')) return;
-      const r = await fetch('/api/admin/users/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-      if (r.ok){ Toast('Deleted'); userModal.classList.remove('show'); loadUsers(); }
-      else { const d=await r.json().catch(()=>({})); Toast(d.error||'Failed', false); }
-    });
+      async function userAction(act, id) {
+        if (act === "view" || act === "edit") {
+          const r = await fetch(`/api/admin/user/${id}`)
+          const d = await r.json()
+          if (!r.ok) return Toast(d.error || "Failed", false)
+          mId.value = d.user.id
+          mUsername.value = d.user.username
+          mDevice.value = d.user.device_id || ""
+          mInfo.textContent = ""
+          userModal.classList.add("show")
+        } else if (act === "rpw") {
+          const pw = prompt("New password (min 8 chars):")
+          if (!pw) return
+          if (pw.length < 8) return Toast("Too short", false)
+          const r = await fetch("/api/admin/users/reset-password", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, new_password: pw }),
+          })
+          if (r.ok) Toast("Password reset")
+          else Toast("Failed", false)
+        } else if (act === "del") {
+          if (!confirm("Delete this user?")) return
+          const r = await fetch("/api/admin/users/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
+          if (r.ok) {
+            Toast("Deleted")
+            loadUsers()
+          } else {
+            const d = await r.json().catch(() => ({}))
+            Toast(d.error || "Failed", false)
+          }
+        }
+      }
 
-    // ---------------- Moderation (Warnings/Bans) ----------------
-    const warnTable = $('#warnTable tbody');
-    $('#warnForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const username = $('#wUser').value.trim();
-      const reason = $('#wReason').value.trim();
-      const severity = (document.querySelector('input[name="wSev"]:checked')||{}).value || 'info';
-      if (!username || !reason) return Toast('Username and reason required', false);
-      try{
-        const r = await fetch('/api/admin/warn',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,reason,severity})});
-        const d = await r.json().catch(()=>({}));
-        if (!r.ok) throw new Error(d?.error||'Failed');
-        Toast('Warning sent'); loadWarnings();
-      }catch(err){ Toast(err.message||'Error', false); }
-    });
-    $('#loadWarnings').addEventListener('click', loadWarnings);
-    async function loadWarnings(){
-      warnTable.innerHTML = `<tr><td colspan="7">Loading…</td></tr>`;
-      try{
-        const r = await fetch('/api/admin/warnings'); const d = await r.json();
-        warnTable.innerHTML='';
-        if (!d.items?.length) warnTable.innerHTML = `<tr><td colspan="7">No warnings.</td></tr>`;
-        d.items?.forEach(w=>{
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
+      $("#mClose").addEventListener("click", () => userModal.classList.remove("show"))
+      $("#mSave").addEventListener("click", async () => {
+        const id = parseInt(mId.value, 10)
+        const username = mUsername.value.trim()
+        const device_id = (mDevice.value || "").trim() || null
+        const r = await fetch("/api/admin/users/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, username, device_id }),
+        })
+        const d = await r.json().catch(() => ({}))
+        if (!r.ok) return (mInfo.textContent = d.error || "Failed"), Toast(d.error || "Failed", false)
+        mInfo.textContent = "Saved"
+        Toast("Saved")
+        loadUsers()
+      })
+      $("#mResetPw").addEventListener("click", async () => {
+        const id = parseInt(mId.value, 10)
+        const pw = prompt("New password (min 8 chars):")
+        if (!pw) return
+        if (pw.length < 8) return Toast("Too short", false)
+        const r = await fetch("/api/admin/users/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, new_password: pw }),
+        })
+        if (r.ok) Toast("Password reset")
+        else Toast("Failed", false)
+      })
+      $("#mRegenRec").addEventListener("click", async () => {
+        const id = parseInt(mId.value, 10)
+        const r = await fetch("/api/admin/users/regenerate-recovery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        })
+        const d = await r.json().catch(() => ({}))
+        if (r.ok) {
+          mInfo.textContent = `Recovery: ${d.recovery_code}`
+          Toast("Regenerated")
+        } else Toast(d.error || "Failed", false)
+      })
+      $("#mDelete").addEventListener("click", async () => {
+        const id = parseInt(mId.value, 10)
+        if (!confirm("Delete this user?")) return
+        const r = await fetch("/api/admin/users/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) })
+        if (r.ok) {
+          Toast("Deleted")
+          userModal.classList.remove("show")
+          loadUsers()
+        } else {
+          const d = await r.json().catch(() => ({}))
+          Toast(d.error || "Failed", false)
+        }
+      })
+
+      // ---------------- Moderation (Warnings/Bans) ----------------
+      const warnTable = $("#warnTable tbody")
+      $("#warnForm").addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const username = $("#wUser").value.trim()
+        const reason = $("#wReason").value.trim()
+        const severity = (document.querySelector('input[name="wSev"]:checked') || {}).value || "info"
+        if (!username || !reason) return Toast("Username and reason required", false)
+        try {
+          const r = await fetch("/api/admin/warn", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, reason, severity }),
+          })
+          const d = await r.json().catch(() => ({}))
+          if (!r.ok) throw new Error(d?.error || "Failed")
+          Toast("Warning sent")
+          loadWarnings()
+        } catch (err) {
+          Toast(err.message || "Error", false)
+        }
+      })
+      $("#loadWarnings").addEventListener("click", loadWarnings)
+      async function loadWarnings() {
+        warnTable.innerHTML = `<tr><td colspan="7">Loading…</td></tr>`
+        try {
+          const r = await fetch("/api/admin/warnings")
+          const d = await r.json()
+          warnTable.innerHTML = ""
+          if (!d.items?.length) warnTable.innerHTML = `<tr><td colspan="7">No warnings.</td></tr>`
+          d.items?.forEach((w) => {
+            const tr = document.createElement("tr")
+            tr.innerHTML = `
             <td>${esc(w.username)}</td>
             <td>${esc(w.reason)}</td>
             <td><span class="chip">${esc(w.severity)}</span></td>
             <td>${new Date(w.created_at).toLocaleString()}</td>
-            <td>${esc(w.created_by||'Owner')}</td>
+            <td>${esc(w.created_by || "Owner")}</td>
             <td>${w.revoked_at ? '<span class="chip">revoked</span>' : '<span class="chip">active</span>'}</td>
-            <td>${w.revoked_at ? '' : `<button class="btn btn-sm" data-wid="${w.id}">Revoke</button>`}</td>`;
-          warnTable.appendChild(tr);
-        });
-        warnTable.querySelectorAll('button[data-wid]').forEach(btn=>{
-          btn.addEventListener('click', async ()=>{
-            const id = btn.getAttribute('data-wid');
-            const r2 = await fetch('/api/admin/warnings/revoke',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-            if (r2.ok) { Toast('Revoked'); loadWarnings(); } else { Toast('Failed', false); }
-          });
-        });
-      }catch{ warnTable.innerHTML = `<tr><td colspan="7">Failed to load.</td></tr>`; }
-    }
-
-    const banTable = $('#banTable tbody');
-    function chosenScopes(){ return Array.from($('#scopeRow').querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value).includes('site')?['site']:Array.from($('#scopeRow').querySelectorAll('input[type="checkbox"]:checked')).map(x=>x.value); }
-    let banMode = 'permanent';
-    $('#durSeg').addEventListener('click', (e)=>{
-      const m = e.target?.dataset?.mode; if (!m) return; banMode = m; Toast(`Duration: ${m}`);
-    });
-    $('#banForm').addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const username = $('#banUser').value.trim();
-      const scopes = chosenScopes();
-      const reason = $('#banReason').value.trim();
-      if (!username) return Toast('Username required', false);
-      if (!scopes.length) return Toast('Pick at least one scope', false);
-      if (username === 'Owner') return Toast('Cannot ban Owner', false);
-      const payload = { username, scopes, reason, mode: banMode };
-      if (banMode === 'relative') {
-        const n = Number($('#amt').value||0); if (!(n>0)) return Toast('Invalid amount', false);
-        payload.amount = n; payload.unit = $('#unit').value;
-      } else if (banMode === 'absolute') {
-        const v = $('#abs').value; if (!v) return Toast('Pick a datetime', false);
-        payload.expires_at = v;
+            <td>${w.revoked_at ? "" : `<button class="btn btn-sm" data-wid="${w.id}">Revoke</button>`}</td>`
+            warnTable.appendChild(tr)
+          })
+          warnTable.querySelectorAll("button[data-wid]").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const id = btn.getAttribute("data-wid")
+              const r2 = await fetch("/api/admin/warnings/revoke", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id }),
+              })
+              if (r2.ok) {
+                Toast("Revoked")
+                loadWarnings()
+              } else {
+                Toast("Failed", false)
+              }
+            })
+          })
+        } catch {
+          warnTable.innerHTML = `<tr><td colspan="7">Failed to load.</td></tr>`
+        }
       }
-      const r = await fetch('/api/admin/ban',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-      const d = await r.json().catch(()=>({}));
-      if (r.ok){ Toast('Ban applied'); loadBans(); } else { Toast(d.error||'Failed', false); }
-    });
-    $('#unbanBtn').addEventListener('click', async ()=>{
-      const username = $('#banUser').value.trim(); if (!username) return Toast('Enter username', false);
-      const r = await fetch('/api/admin/unban',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username})});
-      if (r.ok){ Toast('Unbanned'); loadBans(); } else Toast('Failed', false);
-    });
-    $('#reloadBans').addEventListener('click', loadBans);
-    $('#showAll').addEventListener('change', loadBans);
-    async function loadBans(){
-      banTable.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
-      try{
-        const all = $('#showAll').checked ? '?all=1' : '';
-        const r = await fetch('/api/admin/bans'+all); const d = await r.json();
-        banTable.innerHTML='';
-        if (!d.items?.length) banTable.innerHTML = `<tr><td colspan="6">No bans.</td></tr>`;
-        d.items?.forEach(b=>{
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
+
+      const banTable = $("#banTable tbody")
+      function chosenScopes() {
+        return Array.from($("#scopeRow").querySelectorAll('input[type="checkbox"]:checked'))
+          .map((x) => x.value)
+          .includes("site")
+          ? ["site"]
+          : Array.from($("#scopeRow").querySelectorAll('input[type="checkbox"]:checked')).map((x) => x.value)
+      }
+      let banMode = "permanent"
+      $("#durSeg").addEventListener("click", (e) => {
+        const m = e.target?.dataset?.mode
+        if (!m) return
+        banMode = m
+        Toast(`Duration: ${m}`)
+      })
+      $("#banForm").addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const username = $("#banUser").value.trim()
+        const scopes = chosenScopes()
+        const reason = $("#banReason").value.trim()
+        if (!username) return Toast("Username required", false)
+        if (!scopes.length) return Toast("Pick at least one scope", false)
+        if (username === "Owner") return Toast("Cannot ban Owner", false)
+        const payload = { username, scopes, reason, mode: banMode }
+        if (banMode === "relative") {
+          const n = Number($("#amt").value || 0)
+          if (!(n > 0)) return Toast("Invalid amount", false)
+          payload.amount = n
+          payload.unit = $("#unit").value
+        } else if (banMode === "absolute") {
+          const v = $("#abs").value
+          if (!v) return Toast("Pick a datetime", false)
+          payload.expires_at = v
+        }
+        const r = await fetch("/api/admin/ban", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+        const d = await r.json().catch(() => ({}))
+        if (r.ok) {
+          Toast("Ban applied")
+          loadBans()
+        } else {
+          Toast(d.error || "Failed", false)
+        }
+      })
+      $("#unbanBtn").addEventListener("click", async () => {
+        const username = $("#banUser").value.trim()
+        if (!username) return Toast("Enter username", false)
+        const r = await fetch("/api/admin/unban", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username }) })
+        if (r.ok) {
+          Toast("Unbanned")
+          loadBans()
+        } else Toast("Failed", false)
+      })
+      $("#reloadBans").addEventListener("click", loadBans)
+      $("#showAll").addEventListener("change", loadBans)
+      async function loadBans() {
+        banTable.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`
+        try {
+          const all = $("#showAll").checked ? "?all=1" : ""
+          const r = await fetch("/api/admin/bans" + all)
+          const d = await r.json()
+          banTable.innerHTML = ""
+          if (!d.items?.length) banTable.innerHTML = `<tr><td colspan="6">No bans.</td></tr>`
+          d.items?.forEach((b) => {
+            const tr = document.createElement("tr")
+            tr.innerHTML = `
             <td>${esc(b.username)}</td>
-            <td>${(b.scopes||[]).map(s=>`<span class="chip">${esc(s)}</span>`).join(' ')}</td>
-            <td>${esc(b.reason||'')}</td>
+            <td>${(b.scopes || []).map((s) => `<span class="chip">${esc(s)}</span>`).join(" ")}</td>
+            <td>${esc(b.reason || "")}</td>
             <td>${new Date(b.created_at).toLocaleString()}</td>
             <td>${b.expires_at ? new Date(b.expires_at).toLocaleString() : '<span class="chip">permanent</span>'}</td>
-            <td>${(!b.expires_at || new Date(b.expires_at) > new Date()) ? `<button class="btn btn-sm" data-bid="${b.id}">Unban</button>`:''}</td>
-          `;
-          banTable.appendChild(tr);
-        });
-        banTable.querySelectorAll('button[data-bid]').forEach(btn=>{
-          btn.addEventListener('click', async ()=>{
-            const r2 = await fetch('/api/admin/unban',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ban_id:btn.getAttribute('data-bid')})});
-            if (r2.ok){ Toast('Unbanned'); loadBans(); } else Toast('Failed', false);
-          });
-        });
-      }catch{ banTable.innerHTML = `<tr><td colspan="6">Failed to load.</td></tr>`; }
-    }
-
-    // ---------------- Analytics ----------------
-    let tsChart;
-    $('#aReload').addEventListener('click', loadAnalytics);
-    async function loadAnalytics(){
-      const days = parseInt($('#aDays').value,10); const bucket = $('#aBucket').value;
-      try{
-        const s = await fetch(`/api/admin/analytics/summary?days=${days}`).then(r=>r.json());
-        $('#pv').textContent = s.pageviews; $('#uv').textContent = s.uniques; $('#au').textContent = s.active_users;
-
-        const ts = await fetch(`/api/admin/analytics/timeseries?days=${days}&bucket=${bucket}`).then(r=>r.json());
-        const labels = ts.items.map(x=> new Date(x.bucket).toLocaleString());
-        const data = ts.items.map(x=> Number(x.pv));
-        const ctx = $('#tsChart').getContext('2d');
-        if (tsChart) tsChart.destroy();
-        tsChart = new Chart(ctx, { type:'line', data:{ labels, datasets:[{ label:'PV', data }] }, options:{ responsive:true, scales:{ y:{ beginAtZero:true }}}});
-
-        const tp = await fetch(`/api/admin/analytics/top-paths?days=${days}&limit=20`).then(r=>r.json());
-        const tu = await fetch(`/api/admin/analytics/top-users?days=${days}&limit=20`).then(r=>r.json());
-        const tpBody = $('#topPaths tbody'); tpBody.innerHTML=''; tp.items.forEach(i=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${esc(i.path)}</td><td>${i.pv}</td>`; tpBody.appendChild(tr); });
-        const tuBody = $('#topUsers tbody'); tuBody.innerHTML=''; tu.items.forEach(i=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${esc(i.username)}</td><td>${i.pv}</td>`; tuBody.appendChild(tr); });
-      }catch{ Toast('Analytics load failed', false); }
-    }
-
-    // ---------------- SQL ----------------
-    const sqlBox = $('#sql'), runSQL = $('#runSQL'), clearSQL=$('#clearSQL'), sqlInfo=$('#sqlInfo'), sqlResult=$('#sqlResult');
-    runSQL.addEventListener('click', async ()=>{
-      const sql = sqlBox.value.trim(); if (!sql) return;
-      sqlInfo.textContent = 'Running…'; sqlResult.innerHTML = '…';
-      try{
-        const r = await fetch('/api/admin/sql',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql})});
-        const d = await r.json();
-        if (!r.ok) throw new Error(d?.error||'Failed');
-        if (d.rows){
-          sqlInfo.textContent = `${d.rows.length} row(s)`;
-          sqlResult.innerHTML = renderTable(d.fields, d.rows);
-        } else {
-          sqlInfo.textContent = `${d.rowCount ?? 0} row(s) affected`;
-          sqlResult.innerHTML = `<div class="label">OK</div>`;
+            <td>${!b.expires_at || new Date(b.expires_at) > new Date() ? `<button class="btn btn-sm" data-bid="${b.id}">Unban</button>` : ""}</td>
+          `
+            banTable.appendChild(tr)
+          })
+          banTable.querySelectorAll("button[data-bid]").forEach((btn) => {
+            btn.addEventListener("click", async () => {
+              const r2 = await fetch("/api/admin/unban", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ban_id: btn.getAttribute("data-bid") }),
+              })
+              if (r2.ok) {
+                Toast("Unbanned")
+                loadBans()
+              } else Toast("Failed", false)
+            })
+          })
+        } catch {
+          banTable.innerHTML = `<tr><td colspan="6">Failed to load.</td></tr>`
         }
-      }catch(err){ sqlInfo.textContent='Error'; sqlResult.innerHTML = `<div class="label" style="color:#f88">${esc(err.message||'Error')}</div>`; }
-    });
-    clearSQL.addEventListener('click', ()=>{ sqlBox.value=''; sqlResult.innerHTML=''; sqlInfo.textContent=''; });
-    function renderTable(fields, rows){
-      if (!Array.isArray(fields)||!Array.isArray(rows)) return '<div class="label">No data</div>';
-      let html = '<table class="table"><thead><tr>'; for (const f of fields) html+=`<th>${esc(f)}</th>`; html+='</tr></thead><tbody>';
-      for (const r of rows){ html+='<tr>'; for (const f of fields) html+=`<td>${esc(fmt(r[f]))}</td>`; html+='</tr>'; } html+='</tbody></table>'; return html;
-    }
-    function fmt(v){ if (v===null||v===undefined) return ''; if (typeof v==='object') return JSON.stringify(v); return String(v); }
+      }
 
-    // Init
-    loadRecent();
-    loadUsers();
-    loadWarnings();
-    loadBans();
-    loadAnalytics();
+      // ---------------- Analytics ----------------
+      let tsChart
+      $("#aReload").addEventListener("click", loadAnalytics)
+      async function loadAnalytics() {
+        const days = parseInt($("#aDays").value, 10)
+        const bucket = $("#aBucket").value
+        try {
+          const s = await fetch(`/api/admin/analytics/summary?days=${days}`).then((r) => r.json())
+          $("#pv").textContent = s.pageviews
+          $("#uv").textContent = s.uniques
+          $("#au").textContent = s.active_users
 
-    // Close modals on backdrop click
-    $$('#userModal, #createModal').forEach(m=>m.addEventListener('click', (e)=>{ if (e.target===m) m.classList.remove('show'); }));
-  </script>
-</body>
+          const ts = await fetch(`/api/admin/analytics/timeseries?days=${days}&bucket=${bucket}`).then((r) => r.json())
+          const labels = ts.items.map((x) => new Date(x.bucket).toLocaleString())
+          const data = ts.items.map((x) => Number(x.pv))
+          const ctx = $("#tsChart").getContext("2d")
+          if (tsChart) tsChart.destroy()
+          tsChart = new Chart(ctx, {
+            type: "line",
+            data: { labels, datasets: [{ label: "PV", data }] },
+            options: { responsive: true, scales: { y: { beginAtZero: true } } },
+          })
+
+          const tp = await fetch(`/api/admin/analytics/top-paths?days=${days}&limit=20`).then((r) => r.json())
+          const tu = await fetch(`/api/admin/analytics/top-users?days=${days}&limit=20`).then((r) => r.json())
+          const tpBody = $("#topPaths tbody")
+          tpBody.innerHTML = ""
+          tp.items.forEach((i) => {
+            const tr = document.createElement("tr")
+            tr.innerHTML = `<td>${esc(i.path)}</td><td>${i.pv}</td>`
+            tpBody.appendChild(tr)
+          })
+          const tuBody = $("#topUsers tbody")
+          tuBody.innerHTML = ""
+          tu.items.forEach((i) => {
+            const tr = document.createElement("tr")
+            tr.innerHTML = `<td>${esc(i.username)}</td><td>${i.pv}</td>`
+            tuBody.appendChild(tr)
+          })
+        } catch {
+          Toast("Analytics load failed", false)
+        }
+      }
+
+      // ---------------- Roadmaps ----------------
+      const rmForm = $("#rmForm"),
+        rmId = $("#rmId"),
+        rmTitle = $("#rmTitle"),
+        rmStatus = $("#rmStatus"),
+        rmTarget = $("#rmTarget"),
+        rmSort = $("#rmSort"),
+        rmDesc = $("#rmDesc"),
+        rmClear = $("#rmClear"),
+        rmTable = $("#rmTable tbody")
+      let rmItems = []
+      async function loadRM() {
+        try {
+          const r = await fetch("/api/roadmaps")
+          const d = await r.json()
+          if (!r.ok) throw 0
+          rmItems = d.items || []
+          renderRM()
+        } catch {
+          Toast("Failed to load roadmaps", false)
+        }
+      }
+      function renderRM() {
+        rmTable.innerHTML = ""
+        rmItems.forEach((r) => {
+          const tr = document.createElement("tr")
+          tr.innerHTML = `<td>${esc(r.title)}</td><td><span class="chip op-status-${r.status}">${esc(r.status)}</span></td><td>${r.target_date || "—"}</td><td>${r.sort_order}</td><td>${new Date(r.updated_at).toLocaleString()}</td><td><button class="btn btn-sm" data-edit="${r.id}">Edit</button> <button class="btn btn-sm btn-danger" data-del="${r.id}">Delete</button></td>`
+          rmTable.appendChild(tr)
+        })
+      }
+      rmForm.addEventListener("submit", async (e) => {
+        e.preventDefault()
+        const body = {
+          id: rmId.value || undefined,
+          title: rmTitle.value.trim(),
+          status: rmStatus.value,
+          description: rmDesc.value,
+          target_date: rmTarget.value || null,
+          sort_order: parseInt(rmSort.value, 10) || 1000,
+        }
+        try {
+          const url = body.id ? "/api/roadmaps/update" : "/api/roadmaps"
+          const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+          const d = await r.json()
+          if (!r.ok) throw new Error(d.error || "Failed")
+          Toast("Saved")
+          rmClear.click()
+          await loadRM()
+        } catch (err) {
+          Toast(err.message || "Error", false)
+        }
+      })
+      rmClear.addEventListener("click", () => {
+        rmId.value = ""
+        rmTitle.value = ""
+        rmStatus.value = "planned"
+        rmTarget.value = ""
+        rmSort.value = "1000"
+        rmDesc.value = ""
+      })
+      rmTable.addEventListener("click", async (e) => {
+        const btn = e.target.closest("button")
+        if (!btn) return
+        const id = btn.dataset.edit || btn.dataset.del
+        const item = rmItems.find((r) => String(r.id) === id)
+        if (btn.dataset.edit) {
+          rmId.value = item.id
+          rmTitle.value = item.title
+          rmStatus.value = item.status
+          rmTarget.value = item.target_date || ""
+          rmSort.value = item.sort_order
+          rmDesc.value = item.description || ""
+        } else if (btn.dataset.del) {
+          if (confirm("Delete roadmap?")) {
+            try {
+              const r = await fetch("/api/roadmaps/delete", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: item.id }),
+              })
+              if (!r.ok) throw 0
+              Toast("Deleted")
+              await loadRM()
+            } catch {
+              Toast("Delete failed", false)
+            }
+          }
+        }
+      })
+      loadRM()
+      // ---------------- SQL ----------------
+      const sqlBox = $("#sql"),
+        runSQL = $("#runSQL"),
+        clearSQL = $("#clearSQL"),
+        sqlInfo = $("#sqlInfo"),
+        sqlResult = $("#sqlResult")
+      runSQL.addEventListener("click", async () => {
+        const sql = sqlBox.value.trim()
+        if (!sql) return
+        sqlInfo.textContent = "Running…"
+        sqlResult.innerHTML = "…"
+        try {
+          const r = await fetch("/api/admin/sql", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sql }) })
+          const d = await r.json()
+          if (!r.ok) throw new Error(d?.error || "Failed")
+          if (d.rows) {
+            sqlInfo.textContent = `${d.rows.length} row(s)`
+            sqlResult.innerHTML = renderTable(d.fields, d.rows)
+          } else {
+            sqlInfo.textContent = `${d.rowCount ?? 0} row(s) affected`
+            sqlResult.innerHTML = `<div class="label">OK</div>`
+          }
+        } catch (err) {
+          sqlInfo.textContent = "Error"
+          sqlResult.innerHTML = `<div class="label" style="color:#f88">${esc(err.message || "Error")}</div>`
+        }
+      })
+      clearSQL.addEventListener("click", () => {
+        sqlBox.value = ""
+        sqlResult.innerHTML = ""
+        sqlInfo.textContent = ""
+      })
+      function renderTable(fields, rows) {
+        if (!Array.isArray(fields) || !Array.isArray(rows)) return '<div class="label">No data</div>'
+        let html = '<table class="table"><thead><tr>'
+        for (const f of fields) html += `<th>${esc(f)}</th>`
+        html += "</tr></thead><tbody>"
+        for (const r of rows) {
+          html += "<tr>"
+          for (const f of fields) html += `<td>${esc(fmt(r[f]))}</td>`
+          html += "</tr>"
+        }
+        html += "</tbody></table>"
+        return html
+      }
+      function fmt(v) {
+        if (v === null || v === undefined) return ""
+        if (typeof v === "object") return JSON.stringify(v)
+        return String(v)
+      }
+
+      // Init
+      loadRecent()
+      loadUsers()
+      loadWarnings()
+      loadBans()
+      loadAnalytics()
+
+      // Close modals on backdrop click
+      $$("#userModal, #createModal").forEach((m) =>
+        m.addEventListener("click", (e) => {
+          if (e.target === m) m.classList.remove("show")
+        })
+      )
+    </script>
+  </body>
 </html>
