@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="/assets/css/nav.css" />
     <script src="https://kit.fontawesome.com/1237c86ba0.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="/static/ui.css" />
-  <link rel="stylesheet" href="/static/notifications.css" />
-  <script type="module" src="/static/session-nav.js"></script>
-</head>
+    <link rel="stylesheet" href="/static/notifications.css" />
+    <script type="module" src="/static/session-nav.js"></script>
+  </head>
   <body>
     <style>
       .c-container {
@@ -55,5 +55,61 @@
       </div>
     </div>
     <script src="/assets/scripts/m.js?v=82"></script>
+
+    <section class="rm-section">
+      <h2>Roadmap</h2>
+      <div class="rm-filters">
+        <button class="rm-filter active" data-status="all" aria-pressed="true">All</button>
+        <button class="rm-filter" data-status="planned">Planned</button>
+        <button class="rm-filter" data-status="in-progress">In progress</button>
+        <button class="rm-filter" data-status="done">Done</button>
+      </div>
+      <div class="rm-grid" id="rmGrid"></div>
+    </section>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const grid = document.getElementById("rmGrid")
+        const filters = document.querySelectorAll(".rm-filter")
+        let items = []
+        try {
+          const r = await fetch("/api/roadmaps/public", { credentials: "same-origin" })
+          const d = await r.json()
+          items = (d && d.items) || []
+        } catch {}
+        items.sort(
+          (a, b) =>
+            (a.sort_order || 0) - (b.sort_order || 0) ||
+            (a.target_date ? new Date(a.target_date) - new Date(b.target_date || 0) : b.target_date ? -1 : 0) ||
+            new Date(b.created_at) - new Date(a.created_at)
+        )
+        const render = (status) => {
+          grid.innerHTML = ""
+          items
+            .filter((r) => status === "all" || r.status === status)
+            .forEach((r) => {
+              const card = document.createElement("div")
+              card.className = "rm-card"
+              card.innerHTML = `<h3>${r.title}</h3><span class="rm-status ${r.status}">${r.status}</span>${r.target_date ? `<div class="rm-target">Target: ${r.target_date}</div>` : ""}<div class="rm-desc">${r.description || ""}</div>`
+              card.addEventListener("click", () => {
+                const ex = card.getAttribute("aria-expanded") === "true"
+                card.setAttribute("aria-expanded", ex ? "false" : "true")
+              })
+              grid.appendChild(card)
+            })
+        }
+        filters.forEach((btn) =>
+          btn.addEventListener("click", () => {
+            filters.forEach((b) => {
+              b.classList.remove("active")
+              b.setAttribute("aria-pressed", "false")
+            })
+            btn.classList.add("active")
+            btn.setAttribute("aria-pressed", "true")
+            render(btn.dataset.status)
+          })
+        )
+        render("all")
+      })
+    </script>
   </body>
 </html>
